@@ -18,7 +18,7 @@ steps:
   inputs:
     provider: 'aws'
     command: 'init'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/configuration/iaac/aws/kubernetes/main.tf'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/configuration/iaac/aws/kubernetes'
     backendServiceAWS: 'aws-for-terraform'
     backendAWSBucketName: 'terraform-backend-state-mahmud92542'
     backendAWSKey: 'k8s-dev.tfstate'
