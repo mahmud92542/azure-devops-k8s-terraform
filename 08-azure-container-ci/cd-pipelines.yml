@@ -21,13 +21,18 @@ stages:
     pool:
       vmImage: 'ubuntu-latest'
     steps:
-    - task: Docker@2
+    # - task: Docker@2
+    #   inputs:
+    #     containerRegistry: 'mahmudhasan-docker-hub'
+    #     repository: 'mahmudhasan/currency-exchange-devops'
+    #     command: 'buildAndPush'
+    #     Dockerfile: '**/Dockerfile'
+    #     tags: '$(tag)'
+    - task: CopyFiles@2
       inputs:
-        containerRegistry: 'mahmudhasan-docker-hub'
-        repository: 'mahmudhasan/currency-exchange-devops'
-        command: 'buildAndPush'
-        Dockerfile: '**/Dockerfile'
-        tags: '$(tag)'
+        SourceFolder: '$(System.DefaultWorkingDirectory)'
+        Contents: '**/*.yaml'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
@@ -57,7 +62,7 @@ stages:
           action: 'deploy'
           kubernetesServiceConnection: 'azure-k8s-connection'
           namespace: 'default'
-          manifests: '$(System.ArtifactsDirectory)/deployment.yaml'
-          containers: 'mahmudhasan/currency-exchange-devops:${tag}'
+          manifests: '$(System.ArtifactsDirectory)/configuration/kubernetes/deployment.yaml'
+          containers: 'mahmudhasan/currency-exchange-devops:$(tag)'
 
 
