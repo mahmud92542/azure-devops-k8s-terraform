@@ -5,7 +5,12 @@
 
 trigger:
 - main
+resources:
+- repo: self
 
+variables:
+  tag: 24 
+  # '$(Build.BuildId)'
 pool:
   vmImage: 'ubuntu-latest'
 
@@ -43,9 +48,9 @@ stages:
 #stage 2
 #download the k8s files
 #deploy to k8s cluster with docker image
-  - stage: Deploy
-    displayName: Deploy image
-    jobs:  
+- stage: Deploy
+  displayName: Deploy image
+  jobs:  
     - job: Deploy
       displayName: Deploy
       pool:
