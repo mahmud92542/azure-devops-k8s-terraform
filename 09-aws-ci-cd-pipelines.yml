@@ -1,68 +1,70 @@
-# Docker
-# Build a Docker image 
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
 
 trigger:
-- main
-
+  - main
 resources:
-- repo: self
+  - repo: self
 
 variables:
-  tag: $(Build.BuildId)'
+  tag: "$(Build.BuildId)"
+pool:
+  vmImage: "ubuntu-latest"
 
+#stage 1
+#build docker image
+#publish the k8s files
 stages:
-- stage: Build
-  displayName: Build image
-  jobs:  
-  - job: Build
-    displayName: Build
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-    - task: Docker@2
-      inputs:
-        containerRegistry: 'mahmudhasan-docker-hub'
-        repository: 'mahmudhasan/currency-exchange-devops'
-        command: 'buildAndPush'
-        Dockerfile: '**/Dockerfile'
-        tags: '$(tag)'
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: '$(System.DefaultWorkingDirectory)'
-        Contents: '**/*.yaml'
-        TargetFolder: '$(Build.ArtifactStagingDirectory)'
-    - task: PublishBuildArtifacts@1
-      inputs:
-        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-        ArtifactName: 'manifests'
-        publishLocation: 'Container'
-#Build
-#Build Docker
-#Push Docker
-#Publish
+  - stage: Build
+    displayName: Build image
+    jobs:
+      - job: Build
+        displayName: Build
+        pool:
+          vmImage: "ubuntu-latest"
+        steps:
+          - task: Docker@2
+            inputs:
+              containerRegistry: "mahmudhasan-docker-hub"
+              repository: "mahmudhasan/currency-exchange-devops"
+              command: "buildAndPush"
+              Dockerfile: "**/Dockerfile"
+              tags: "$(tag)"
+          - task: CopyFiles@2
+            inputs:
+              SourceFolder: "$(System.DefaultWorkingDirectory)"
+              Contents: "**/*.yaml"
+              TargetFolder: "$(Build.ArtifactStagingDirectory)"
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "$(Build.ArtifactStagingDirectory)"
+              ArtifactName: "manifests"
+              publishLocation: "Container"
 
-#Deploy
-#Deploy to k8s
-#apply - kubectl apply -f deployment.yaml
-- stage: Deploy
-  displayName: Deploy image
-  jobs:  
-  - job: Deploy
-    displayName: Deploy
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-    - task: DownloadPipelineArtifact@2
-      inputs:
-        buildType: 'current'
-        artifactName: 'manifests'
-        itemPattern: '**/*.yaml'
-        targetPath: '$(System.ArtifactsDirectory)'
-    - task: KubernetesManifest@0
-      inputs:
-        action: 'deploy'
-        kubernetesServiceConnection: 'aws-k8s-cluster-service'
-        namespace: 'default'
-        manifests: '$(System.ArtifactsDirectory)/configuration/kubernetes/deployment.yaml'
-        containers: mahmudhasan/currency-exchange-devops:$(tag)
+  #stage 2
+  #download the k8s files
+  #deploy to k8s cluster with docker image
+  - stage: Deploy
+    displayName: Deploy image
+    jobs:
+      - job: Deploy
+        displayName: Deploy
+        pool:
+          vmImage: "ubuntu-latest"
+        steps:
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              buildType: "current"
+              artifactName: "manifests"
+              itemPattern: "**/*.yaml"
+              targetPath: "$(System.ArtifactsDirectory)"
+          - task: KubernetesManifest@0
+            inputs:
+              action: 'deploy'
+              kubernetesServiceConnection: 'aws-k8s-cluster-service'
+              namespace: 'default'
+              manifests: '$(System.ArtifactsDirectory)/configuration/kubernetes/deployment.yaml'
+              containers: 'mahmudhasan/currency-exchange-devops:$(tag)'
