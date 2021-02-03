@@ -62,7 +62,7 @@ stages:
     - task: KubernetesManifest@0
       inputs:
         action: 'deploy'
-        kubernetesServiceConnection: 'aws-kubernetes-cluster-service-connection'
+        kubernetesServiceConnection: 'aws-k8s-cluster-service'
         namespace: 'default'
         manifests: '$(System.ArtifactsDirectory)/configuration/kubernetes/deployment.yaml'
         containers: mahmudhasan/currency-exchange-devops:$(tag)
