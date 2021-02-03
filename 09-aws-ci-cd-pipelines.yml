@@ -68,3 +68,9 @@ stages:
               namespace: 'default'
               manifests: '$(System.ArtifactsDirectory)/configuration/kubernetes/deployment.yaml'
               containers: 'mahmudhasan/currency-exchange-devops:$(tag)'
+          
+          - task: TerraformCLI@0
+            inputs:
+              command: 'destroy'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/configuration/iaac/azure/kubernetes'
+              environmentServiceName: 'aws-k8s-cluster-service'
